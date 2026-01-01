@@ -2,6 +2,10 @@
 # Python
 # =========================
 __pycache__/
+venv
+.venv
+venv/
+.venv/
 *.py[cod]
 *$py.class
 *.so

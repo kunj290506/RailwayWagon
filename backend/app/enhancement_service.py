@@ -7,40 +7,61 @@ from app.models import FrameAnalysis
 
 def enhance_image(image_path: str, output_path: str):
     """
-    Applies Stronger CLAHE, Sharpening, and Saturation Boost to make enhancement obvious.
+    Applies Advanced Enhancement: Glare Reduction -> CLAHE -> Bilateral Denoise -> Sharpening -> Upscale.
     """
     img = cv2.imread(image_path)
     if img is None:
         return
 
-    # 1. Denoise first (to avoid sharpening noise)
-    denoised = cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 21)
-
-    # 2. CLAHE (Contrast Limited Adaptive Histogram Equalization)
-    lab = cv2.cvtColor(denoised, cv2.COLOR_BGR2LAB)
-    l, a, b = cv2.split(lab)
-    
-    # Stronger Clip Limit for more "HDR" look
-    clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(8, 8))
-    cl = clahe.apply(l)
-    
-    limg = cv2.merge((cl, a, b))
-    contrast_img = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
-
-    # 3. Aggressive Sharpening
-    # Laplacian Kernel for edges
-    kernel = np.array([[-1, -1, -1], 
-                       [-1,  9, -1], 
-                       [-1, -1, -1]])
-    sharpened = cv2.filter2D(contrast_img, -1, kernel)
-    
-    # 4. Saturation Boost (to make it pop)
-    hsv = cv2.cvtColor(sharpened, cv2.COLOR_BGR2HSV)
+    # 1. Reduce Sunlight / Glare (HSV Space)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     h, s, v = cv2.split(hsv)
-    s = cv2.multiply(s, 1.2) # 20% more saturation
-    s = np.clip(s, 0, 255).astype(np.uint8)
-    hsv = cv2.merge((h, s, v))
-    final_img = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+    # Reduce overexposed highlights
+    v = np.clip(v * 0.75, 0, 255).astype(np.uint8)
+
+    # Slight saturation boost (recovers faded paint/text)
+    s = np.clip(s * 1.15, 0, 255).astype(np.uint8)
+
+    hsv_fixed = cv2.merge((h, s, v))
+    glare_reduced = cv2.cvtColor(hsv_fixed, cv2.COLOR_HSV2BGR)
+
+    # 2. Local Contrast Enhancement (CLAHE)
+    lab = cv2.cvtColor(glare_reduced, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+
+    clahe = cv2.createCLAHE(clipLimit=2.2, tileGridSize=(8, 8))
+    l = clahe.apply(l)
+
+    lab_enhanced = cv2.merge((l, a, b))
+    contrast_enhanced = cv2.cvtColor(lab_enhanced, cv2.COLOR_LAB2BGR)
+
+    # 3. Edge-Preserving Denoising
+    denoised = cv2.bilateralFilter(
+        contrast_enhanced,
+        d=9,
+        sigmaColor=75,
+        sigmaSpace=75
+    )
+
+    # 4. Gentle Sharpening (OCR-safe)
+    blur = cv2.GaussianBlur(denoised, (0, 0), sigmaX=0.8)
+    sharpened = cv2.addWeighted(denoised, 1.25, blur, -0.25, 0)
+
+    # 5. Upscale to True 2K (Lanczos – best quality)
+    h_dim, w_dim = sharpened.shape[:2]
+    target_width = 2560
+    scale = target_width / w_dim
+    
+    # Only upscale if smaller
+    if w_dim < target_width:
+        final_img = cv2.resize(
+            sharpened,
+            (target_width, int(h_dim * scale)),
+            interpolation=cv2.INTER_LANCZOS4
+        )
+    else:
+        final_img = sharpened
 
     cv2.imwrite(output_path, final_img)
 

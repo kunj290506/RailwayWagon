@@ -5,9 +5,10 @@ import AnalyticsPage from './pages/Analytics';
 import ReportsPage from './pages/Reports';
 import UploadSection from './components/UploadSection'; // Keep old upload for setup
 
-import { LayoutDashboard, Settings, Video, FileText, BarChart, AlertTriangle, GitCompare, Menu, Search, Bell, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, Settings, Video, FileText, BarChart, AlertTriangle, GitCompare, Menu, Search, Bell, HelpCircle, History } from 'lucide-react';
 import FrameComparison from './components/FrameComparison';
 import TopBlurFrames from './pages/TopBlurFrames';
+import HistoryPage from './pages/History';
 
 function App() {
   return (
@@ -60,6 +61,11 @@ function App() {
                   <span>Analytics</span>
                 </NavLink>
 
+                <NavLink to="/history" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-colors ${isActive ? 'bg-[#f1f2f3] text-[#ec7211] border-l-4 border-[#ec7211]' : 'text-[#545b64] hover:text-[#16191f] hover:bg-[#fafafa] border-l-4 border-transparent'}`}>
+                  <History size={18} />
+                  <span>History & Archives</span>
+                </NavLink>
+
                 <NavLink to="/reports" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-colors ${isActive ? 'bg-[#f1f2f3] text-[#ec7211] border-l-4 border-[#ec7211]' : 'text-[#545b64] hover:text-[#16191f] hover:bg-[#fafafa] border-l-4 border-transparent'}`}>
                   <FileText size={18} />
                   <span>Reports</span>
@@ -88,6 +94,7 @@ function App() {
               } />
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/history" element={<HistoryPage />} />
               <Route path="/comparison" element={<FrameComparison />} />
               <Route path="/top-blur" element={<TopBlurFrames />} />
             </Routes>
