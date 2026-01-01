@@ -3,20 +3,96 @@
 @tailwind utilities;
 
 :root {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Enterprise Palette - Neutral & Clean */
+  --bg-app: #F3F4F6;
+  /* Soft Gray Background */
+  --bg-surface: #FFFFFF;
+  /* White Surface */
+  --border-subtle: #E5E7EB;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+
+  /* Brand Colors - Professional Adani Orange/Blue */
+  --brand-primary: #ec7211;
+  --brand-dark: #232f3e;
 }
 
 body {
+  font-family: var(--font-inter);
+  color: var(--text-primary);
+  background-color: var(--bg-app);
   margin: 0;
-  min-width: 320px;
   min-height: 100vh;
-  background-color: #f2f3f3;
-  /* AWS Console Background */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Modern Card Style (Clean, No Glass) */
+.card-saas {
+  background: white;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  /* Smooth curvature */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  /* Subtle depth */
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-saas:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border-color: #d1d5db;
+}
+
+/* Clean Inputs */
+.input-saas {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.input-saas:focus {
+  background: #FFFFFF;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(236, 114, 17, 0.1);
+}
+
+/* Utilities */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
 }
