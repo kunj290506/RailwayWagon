@@ -153,3 +153,4 @@ coverage.xml
 *.zip
 *.tar
 *.rar
+data/ 
