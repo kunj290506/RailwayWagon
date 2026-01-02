@@ -1,0 +1,44 @@
+[
+    {
+        "number": "15065401303",
+        "frame": "frame_0060.jpg",
+        "confidence": 0.85,
+        "image_url": "http://localhost:8000/static/enhanced/frame_0060.jpg"
+    },
+    {
+        "number": "00108100151",
+        "frame": "frame_0085.jpg",
+        "confidence": 0.85,
+        "image_url": "http://localhost:8000/static/enhanced/frame_0085.jpg"
+    },
+    {
+        "number": "40089865992",
+        "frame": "frame_0110.jpg",
+        "confidence": 0.24,
+        "image_url": "http://localhost:8000/static/enhanced/frame_0110.jpg"
+    },
+    {
+        "number": "040089865992 (?)",
+        "frame": "frame_0110.jpg",
+        "confidence": 0.45,
+        "image_url": "http://localhost:8000/static/enhanced/frame_0110.jpg"
+    },
+    {
+        "number": "322070787 (?)",
+        "frame": "frame_0115.jpg",
+        "confidence": 0.45,
+        "image_url": "http://localhost:8000/static/enhanced/frame_0115.jpg"
+    },
+    {
+        "number": "4020315203",
+        "frame": "frame_0140.jpg",
+        "confidence": 0.49,
+        "image_url": "http://localhost:8000/static/enhanced/frame_0140.jpg"
+    },
+    {
+        "number": "402031520306 (?)",
+        "frame": "frame_0140.jpg",
+        "confidence": 0.45,
+        "image_url": "http://localhost:8000/static/enhanced/frame_0140.jpg"
+    }
+]

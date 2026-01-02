@@ -98,9 +98,10 @@ backend/data/enhanced/*
 # Session artifacts
 backend/data/uploads/*
 backend/data/history/**
-backend/data/metadata.json
-backend/data/wagons.json
-backend/data/analysis.json
+backend/data/*.json
+!backend/data/metadata.json
+!backend/data/wagons.json
+!backend/data/analysis.json
 backend/data/original_video.mp4
 backend/data/enhanced_video.mp4
 
@@ -153,4 +154,4 @@ coverage.xml
 *.zip
 *.tar
 *.rar
-data/ 
+/data/
