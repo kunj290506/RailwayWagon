@@ -13,7 +13,8 @@ function WagonList({ wagons }) {
                     <thead className="bg-slate-50 text-slate-700 uppercase font-bold text-xs sticky top-0">
                         <tr>
                             <th className="px-6 py-4">Wagon Number</th>
-                            <th className="px-6 py-4">Found In Frame</th>
+                            <th className="px-6 py-4">Accuracy</th>
+                            <th className="px-6 py-4">Best Frame</th>
                             <th className="px-6 py-4">Preview</th>
                         </tr>
                     </thead>
@@ -22,6 +23,18 @@ function WagonList({ wagons }) {
                             <tr key={idx} className="hover:bg-slate-50 transition">
                                 <td className="px-6 py-4 font-mono text-lg font-bold text-blue-600 tracking-wider">
                                     {wagon.number}
+                                </td>
+                                <td className="px-6 py-4">
+                                    {wagon.confidence ? (
+                                        <span className={`px-2 py-1 rounded text-xs font-bold ${wagon.confidence > 0.8 ? 'bg-green-100 text-green-700' :
+                                                wagon.confidence > 0.5 ? 'bg-yellow-100 text-yellow-700' :
+                                                    'bg-red-100 text-red-700'
+                                            }`}>
+                                            {(wagon.confidence * 100).toFixed(1)}%
+                                        </span>
+                                    ) : (
+                                        <span className="text-slate-400 text-xs">N/A</span>
+                                    )}
                                 </td>
                                 <td className="px-6 py-4 text-slate-500 font-mono">
                                     {wagon.frame}

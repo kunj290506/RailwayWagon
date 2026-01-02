@@ -12,8 +12,38 @@ from app.detection_service import run_detection
 from app.models import BlurResponse, AIComparisonResponse
 
 app = FastAPI()
+        
+# Helper for Cleanup
+def cleanup_session_data():
+    print("🧹 Cleaning up live session data...")
+    # Directories to clear
+    dirs_to_clear = ["data/frames", "data/enhanced", "data/uploads"]
+    for d in dirs_to_clear:
+        if os.path.exists(d):
+            # Remove all contents but keep directory
+            for filename in os.listdir(d):
+                file_path = os.path.join(d, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    print(f"Failed to delete {file_path}. Reason: {e}")
 
-# Startup Event to check GPU
+    # Files to remove
+    files_to_remove = ["data/wagons.json", "data/metadata.json", "data/analysis.json", "data/original_video.mp4", "data/enhanced_video.mp4"]
+    for f in files_to_remove:
+        if os.path.exists(f):
+            try:
+                os.remove(f)
+            except Exception as e:
+                 print(f"Failed to delete {f}. Reason: {e}")
+    
+    # Reset status
+    global server_status
+    server_status = { "step": "Idle", "message": "Ready", "progress": 0 }
+
 @app.on_event("startup")
 async def startup_event():
     import torch
@@ -25,33 +55,11 @@ async def startup_event():
             print(f"✅ GPU Detected: {torch.cuda.get_device_name(0)}")
             print("   PyTorch is using CUDA.")
         else:
-            print("⚠️  GPU Detected via PyTorch. Using CPU.")
+            print("⚠️  No GPU via PyTorch. Using CPU.")
     except Exception as e:
         print(f"❌ Error checking GPU: {e}")
         
-    # ---------------------------------------------------------
-    # CLEANUP LIVE SESSION DATA (Fresh Start)
-    # ---------------------------------------------------------
-    print("🧹 Cleaning up previous live session data...")
-    try:
-        # Clear directories but keep the root folder
-        for folder in ["data/frames", "data/enhanced", "data/uploads"]:
-            if os.path.exists(folder):
-                shutil.rmtree(folder)
-            os.makedirs(folder, exist_ok=True)
-            
-        # Remove live JSON files
-        for f in ["data/wagons.json", "data/metadata.json", "data/analysis.json"]:
-            if os.path.exists(f):
-                os.remove(f)
-                
-        # Reset server status
-        global server_status
-        server_status = { "step": "Idle", "message": "Ready", "progress": 0 }
-        
-        print("✅ Session Reset Complete. Ready for new input.")
-    except Exception as e:
-        print(f"⚠️ Warning during cleanup: {e}")
+    cleanup_session_data()
 
     print("------------------------------------------------")
 
@@ -86,31 +94,56 @@ app.mount("/static/data", StaticFiles(directory="data"), name="static_data")
 def read_root():
     return {"message": "API is running"}
 
+@app.post("/reset_session")
+def reset_session_endpoint():
+    try:
+        cleanup_session_data()
+        return {"message": "Session Reset Complete"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/upload_video")
 async def upload_video(file: UploadFile = File(...)):
     try:
-        # Save uploaded file
+        # 1. CLEANUP LIVE SESSION DATA (User Requested "Fresh Start" per upload)
+        # We assume every new video upload implies a new inspection session.
+        print(f"🧹 Purging previous session data for new upload: {file.filename}")
+        cleanup_session_data()
+
+        # 2. Save uploaded file
         file_location = f"data/uploads/{file.filename}"
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        # Process video (extract frames)
+        # 3. Process video (extract frames)
         output_dir = "data/frames"
-        num_frames = process_video(file_location, output_dir, step=5)
+        # Increase step to 15 for MUCH faster processing (approx 2 fps extracted)
+        num_frames = process_video(file_location, output_dir, step=15)
         
         return {
-            "message": "Video processed successfully",
+            "message": "Video processed successfully (Previous session cleared)",
             "filename": file.filename,
             "frames_extracted": num_frames
         }
     except Exception as e:
+        print(f"Upload Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/analyze_blur", response_model=BlurResponse)
 def analyze_blur():
     try:
         frames_dir = "data/frames"
+        enhanced_dir = "data/enhanced"
         results = analyze_frames(frames_dir, threshold=100.0)
+
+        # Auto-populate enhanced images so Frame Comparison can display immediately
+        try:
+            need_enhance = (not os.path.exists(enhanced_dir)) or (len(os.listdir(enhanced_dir)) == 0)
+            if need_enhance and results:
+                enhance_frames(frames_dir, enhanced_dir, results)
+        except Exception as _e:
+            # Non-fatal: still return analysis results even if enhancement fails
+            print(f"Auto-enhance skipped: {_e}")
         return {
             "total_frames": len(results),
             "results": results
@@ -121,24 +154,37 @@ def analyze_blur():
 @app.post("/enhance_frames")
 def enhance_frames_endpoint():
     try:
+        update_status("Enhancement", "Initializing Pipeline...", 0)
+        
         frames_dir = "data/frames"
         enhanced_dir = "data/enhanced"
         
         # We need the blur results to decided which to enhance
-        # For this MVP, we re-run analysis or cache it. Re-running is safer/simpler stateless.
         blur_results = analyze_frames(frames_dir, threshold=100.0)
         
-        count = enhance_frames(frames_dir, enhanced_dir, blur_results)
+        # Callback for ETA
+        def status_update(prog, eta):
+            eta_val = int(eta)
+            eta_str = f"{eta_val // 60}m {eta_val % 60}s" if eta_val > 60 else f"{eta_val}s"
+            # Update global status
+            update_status("Enhancement", f"Enhancing... Remaining: {eta_str}", int(prog))
+            server_status["eta"] = eta_str
+
+        count = enhance_frames(frames_dir, enhanced_dir, blur_results, update_callback=status_update)
         
         # NEW: Reassemble Enhanced Video for the Player
+        update_status("Enhancement", "Reassembling Video...", 95)
+        server_status["eta"] = "~10s"
+        
         from app.video_service import create_video_from_frames
         # We assume 30 FPS for the output primarily
         create_video_from_frames(enhanced_dir, "data/enhanced_video.mp4", fps=30.0)
         
         # Also ensure we have an original video in a standard place (copy upload)
-        # We'll handle this path logic in the upload step ideally, but let's just use the latest upload
-        # or we can re-assemble original frames too to be sure of sync.
         create_video_from_frames(frames_dir, "data/original_video.mp4", fps=30.0)
+        
+        update_status("Enhancement", "Complete", 100)
+        server_status["eta"] = "0s"
         
         return {"message": "Enhancement and Reassembly complete", "enhanced_count": count}
     except Exception as e:
@@ -262,29 +308,63 @@ def scan_wagons():
     found_wagons = {} # number -> first_seen_frame
     
     print(f"Scanning {total_scan} frames out of {len(frames)} total...")
+    
+    import time
+    start_time = time.time()
 
     for i, frame in enumerate(frames_to_scan):
-        update_status("Scanning", f"Scanning frame {i+1}/{total_scan}: {frame}", int((i / total_scan) * 100))
+        # ETA Calculation
+        processed = i + 1
+        elapsed = time.time() - start_time
+        avg_time = elapsed / processed
+        remaining = total_scan - processed
+        eta_val = int(avg_time * remaining)
+        eta_str = f"{eta_val // 60}m {eta_val % 60}s" if eta_val > 60 else f"{eta_val}s"
+
+        update_status("Scanning", f"Scanning {i+1}/{total_scan} - Rem: {eta_str}", int((i / total_scan) * 100))
+        server_status["eta"] = eta_str
         
         if not (frame.endswith(".jpg") or frame.endswith(".png")):
             continue
             
         path = os.path.join(enhanced_dir, frame)
         ocr_results = run_ocr(path)
-        numbers = extract_valid_wagon_numbers(ocr_results)
         
-        for num in numbers:
+        # New: Returns list of dicts {'number': str, 'confidence': float}
+        wagon_objects = extract_valid_wagon_numbers(ocr_results)
+        
+        for w_obj in wagon_objects:
+            num = w_obj['number']
+            conf = w_obj['confidence']
+            
+            # Logic: If new, add. If existing, update ONLY if confidence is better?
+            # For now, let's just keep the first one found or maybe the one with best confidence?
+            # Let's simple keep first found to map it to the earliest frame (good for timeline).
+            # But we want to record the MAX confidence observed across frames.
+            
             if num not in found_wagons:
-                found_wagons[num] = frame
-                print(f"Found Wagon: {num} in {frame}")
+                found_wagons[num] = {
+                    "frame": frame,
+                    "confidence": conf,
+                    "first_seen": frame
+                }
+                print(f"Found Wagon: {num} (Conf: {conf}) in {frame}")
+            else:
+                # Update max confidence if this sighting is better
+                if conf > found_wagons[num]["confidence"]:
+                    found_wagons[num]["confidence"] = conf
+                    # We keep "frame" as the best confidence frame? 
+                    # Yes, show the clearest image.
+                    found_wagons[num]["frame"] = frame 
 
     # Format result
     result_list = []
-    for num, frame in found_wagons.items():
+    for num, data in found_wagons.items():
         result_list.append({
             "number": num,
-            "frame": frame,
-            "image_url": f"http://localhost:8000/static/enhanced/{frame}"
+            "frame": data["frame"],
+            "confidence": data["confidence"], # Pass to frontend
+            "image_url": f"http://localhost:8000/static/enhanced/{data['frame']}"
         })
     
     # Save current session

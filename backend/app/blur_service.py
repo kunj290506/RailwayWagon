@@ -2,6 +2,7 @@ import cv2
 import os
 import glob
 import json
+import numpy as np
 from typing import List
 from app.models import FrameAnalysis
 
@@ -10,14 +11,26 @@ def calculate_blur_score(image_path: str) -> float:
     Computes the Laplacian Variance of an image.
     Higher value = Sharper image.
     Lower value = Blurred image.
+    
+    CRITICAL: This metric is sensitive to noise. A very noisy image might appear 'sharp'.
+    Future TODO: Combine with Tenengrad gradient for robustness.
     """
     image = cv2.imread(image_path)
     if image is None:
-        raise ValueError(f"Could not read image: {image_path}")
+        # Return 0 so it's classified as extremely blurry/invalid
+        return 0.0
     
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    score = cv2.Laplacian(gray, cv2.CV_64F).var()
-    return score
+    try:
+        if len(image.shape) == 3:
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        else:
+            gray = image
+            
+        # Laplacian calculation
+        score = cv2.Laplacian(gray, cv2.CV_64F).var()
+        return score
+    except Exception:
+        return 0.0
 
 def analyze_frames(frames_dir: str, threshold: float = 100.0) -> List[FrameAnalysis]:
     """
@@ -36,6 +49,9 @@ def analyze_frames(frames_dir: str, threshold: float = 100.0) -> List[FrameAnaly
         filename = os.path.basename(file_path)
         try:
             score = calculate_blur_score(file_path)
+            
+            # Dynamic Thresholding?
+            # For now, 100 is a standard heuristic for "focused" vs "blurry"
             state = "SHARP" if score > threshold else "BLURRED"
             
             results.append(FrameAnalysis(

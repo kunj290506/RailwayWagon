@@ -13,6 +13,7 @@ class BlurResponse(BaseModel):
 class OCRResult(BaseModel):
     text: str
     confidence: float
+    bbox: List[List[float]]  # 4 points [[x,y]...], in image pixel coords
 
 class DetectionResult(BaseModel):
     label: str

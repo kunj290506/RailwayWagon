@@ -1,0 +1,190 @@
+[
+    {
+        "video": "C:\\Users\\kunjc\\Videos\\output_video3.mp4",
+        "wagons": [
+            {
+                "number": "15065401303",
+                "frame": "frame_0060.jpg",
+                "confidence": 0.85,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131608/images/frame_0060.jpg"
+            },
+            {
+                "number": "00108100151",
+                "frame": "frame_0085.jpg",
+                "confidence": 0.85,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131608/images/frame_0085.jpg"
+            },
+            {
+                "number": "40089865992",
+                "frame": "frame_0110.jpg",
+                "confidence": 0.24,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131608/images/frame_0110.jpg"
+            },
+            {
+                "number": "040089865992 (?)",
+                "frame": "frame_0110.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131608/images/frame_0110.jpg"
+            },
+            {
+                "number": "322070787 (?)",
+                "frame": "frame_0115.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131608/images/frame_0115.jpg"
+            },
+            {
+                "number": "4020315203",
+                "frame": "frame_0140.jpg",
+                "confidence": 0.49,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131608/images/frame_0140.jpg"
+            },
+            {
+                "number": "402031520306 (?)",
+                "frame": "frame_0140.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131608/images/frame_0140.jpg"
+            }
+        ]
+    },
+    {
+        "video": "C:\\Users\\kunjc\\Videos\\output_video.mp4",
+        "wagons": [
+            {
+                "number": "15065401303",
+                "frame": "frame_0060.jpg",
+                "confidence": 0.85,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131806/images/frame_0060.jpg"
+            },
+            {
+                "number": "00108100151",
+                "frame": "frame_0085.jpg",
+                "confidence": 0.85,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131806/images/frame_0085.jpg"
+            },
+            {
+                "number": "40089865992",
+                "frame": "frame_0110.jpg",
+                "confidence": 0.24,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131806/images/frame_0110.jpg"
+            },
+            {
+                "number": "040089865992 (?)",
+                "frame": "frame_0110.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131806/images/frame_0110.jpg"
+            },
+            {
+                "number": "322070787 (?)",
+                "frame": "frame_0115.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131806/images/frame_0115.jpg"
+            },
+            {
+                "number": "4020315203",
+                "frame": "frame_0140.jpg",
+                "confidence": 0.49,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131806/images/frame_0140.jpg"
+            },
+            {
+                "number": "402031520306 (?)",
+                "frame": "frame_0140.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_131806/images/frame_0140.jpg"
+            }
+        ]
+    },
+    {
+        "video": "C:\\Users\\kunjc\\Videos\\output_video1.mp4",
+        "wagons": [
+            {
+                "number": "15065401303",
+                "frame": "frame_0060.jpg",
+                "confidence": 0.85,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132016/images/frame_0060.jpg"
+            },
+            {
+                "number": "00108100151",
+                "frame": "frame_0085.jpg",
+                "confidence": 0.85,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132016/images/frame_0085.jpg"
+            },
+            {
+                "number": "40089865992",
+                "frame": "frame_0110.jpg",
+                "confidence": 0.24,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132016/images/frame_0110.jpg"
+            },
+            {
+                "number": "040089865992 (?)",
+                "frame": "frame_0110.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132016/images/frame_0110.jpg"
+            },
+            {
+                "number": "322070787 (?)",
+                "frame": "frame_0115.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132016/images/frame_0115.jpg"
+            },
+            {
+                "number": "4020315203",
+                "frame": "frame_0140.jpg",
+                "confidence": 0.49,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132016/images/frame_0140.jpg"
+            },
+            {
+                "number": "402031520306 (?)",
+                "frame": "frame_0140.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132016/images/frame_0140.jpg"
+            }
+        ]
+    },
+    {
+        "video": "C:\\Users\\kunjc\\Videos\\output_video2.mp4",
+        "wagons": [
+            {
+                "number": "15065401303",
+                "frame": "frame_0060.jpg",
+                "confidence": 0.85,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132300/images/frame_0060.jpg"
+            },
+            {
+                "number": "00108100151",
+                "frame": "frame_0085.jpg",
+                "confidence": 0.85,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132300/images/frame_0085.jpg"
+            },
+            {
+                "number": "40089865992",
+                "frame": "frame_0110.jpg",
+                "confidence": 0.24,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132300/images/frame_0110.jpg"
+            },
+            {
+                "number": "040089865992 (?)",
+                "frame": "frame_0110.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132300/images/frame_0110.jpg"
+            },
+            {
+                "number": "322070787 (?)",
+                "frame": "frame_0115.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132300/images/frame_0115.jpg"
+            },
+            {
+                "number": "4020315203",
+                "frame": "frame_0140.jpg",
+                "confidence": 0.49,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132300/images/frame_0140.jpg"
+            },
+            {
+                "number": "402031520306 (?)",
+                "frame": "frame_0140.jpg",
+                "confidence": 0.45,
+                "image_url": "http://localhost:8000/static/data/history/20260102_132300/images/frame_0140.jpg"
+            }
+        ]
+    }
+]

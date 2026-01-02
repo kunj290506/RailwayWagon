@@ -11,6 +11,8 @@ import {
     ArcElement
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
+import PageHeader from '../components/PageHeader';
+import { BarChart, TrendingUp, AlertTriangle, Home } from 'lucide-react';
 
 ChartJS.register(
     CategoryScale,
@@ -70,15 +72,53 @@ const AnalyticsPage = () => {
 
     return (
         <div className="max-w-[1600px] mx-auto">
-            <header className="mb-6 flex justify-between items-end border-b border-gray-300 pb-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-[#16191f]">Motion Analytics</h1>
-                    <p className="text-[#545b64] text-sm mt-1">Telemetry and Blur Variance Metrics</p>
+            <PageHeader
+                title="Motion Analytics"
+                description="Telemetry and blur variance metrics across inspection sessions"
+                breadcrumbs={[
+                    { label: 'Dashboard', path: '/', icon: Home },
+                    { label: 'Analytics' }
+                ]}
+            />
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-blue-50 rounded-lg">
+                            <BarChart className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-slate-600">Total Frames</p>
+                            <p className="text-2xl font-bold text-slate-900">{metadata.length}</p>
+                        </div>
+                    </div>
                 </div>
-                <div className="bg-white border border-gray-300 rounded-sm px-3 py-1 text-sm font-bold text-[#545b64]">
-                    Last 24 Hours
+
+                <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-red-50 rounded-lg">
+                            <AlertTriangle className="w-5 h-5 text-red-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-slate-600">Blurred Frames</p>
+                            <p className="text-2xl font-bold text-slate-900">{blurredCount}</p>
+                        </div>
+                    </div>
                 </div>
-            </header>
+
+                <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-emerald-50 rounded-lg">
+                            <TrendingUp className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-slate-600">Sharp Frames</p>
+                            <p className="text-2xl font-bold text-slate-900">{sharpCount}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="bg-white p-4 border border-gray-300 shadow-sm">

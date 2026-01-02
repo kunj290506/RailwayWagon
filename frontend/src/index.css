@@ -2,6 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .animate-float-slow {
+    animation: float-slow 20s infinite ease-in-out;
+  }
+
+  .animate-float-delayed {
+    animation: float-delayed 25s infinite ease-in-out;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 15s infinite ease-in-out;
+  }
+}
+
+@keyframes float-slow {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+}
+
+@keyframes float-delayed {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-50px, 30px) scale(0.9);
+  }
+}
+
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.3;
+    transform: scale(1.2);
+  }
+}
+
 :root {
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;

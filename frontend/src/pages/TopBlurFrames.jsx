@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, Eye } from 'lucide-react';
+import { AlertTriangle, Eye, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PageHeader from '../components/PageHeader';
 
 const TopBlurFrames = () => {
     const [frames, setFrames] = useState([]);
@@ -14,13 +15,14 @@ const TopBlurFrames = () => {
 
     return (
         <div className="max-w-[1600px] mx-auto">
-            <header className="mb-6 border-b border-gray-300 pb-4">
-                <h1 className="text-2xl font-bold text-[#16191f] flex items-center gap-2">
-                    <AlertTriangle className="text-[#ec7211]" size={24} />
-                    Variance Anomalies (Top 10)
-                </h1>
-                <p className="text-[#545b64] text-sm mt-1">Frames requiring manual review due to high breakdown/blur scores.</p>
-            </header>
+            <PageHeader
+                title="Variance Anomalies"
+                description="Frames requiring manual review due to high breakdown/blur scores"
+                breadcrumbs={[
+                    { label: 'Dashboard', path: '/', icon: Home },
+                    { label: 'Top Blur Frames' }
+                ]}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {frames.map((frame, idx) => (

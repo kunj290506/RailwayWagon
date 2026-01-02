@@ -95,6 +95,18 @@ backend/data/frames/*
 backend/data/enhanced/*
 !backend/data/enhanced/.gitkeep
 
+# Session artifacts
+backend/data/uploads/*
+backend/data/history/**
+backend/data/metadata.json
+backend/data/wagons.json
+backend/data/analysis.json
+backend/data/original_video.mp4
+backend/data/enhanced_video.mp4
+
+# YOLO weights
+backend/yolov8*.pt
+
 # Test data (large files)
 test/Zero-DCE/Zero-DCE_code/data/test_data/*
 !test/Zero-DCE/Zero-DCE_code/data/test_data/.gitkeep

@@ -1,25 +1,42 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import PageHeader from './PageHeader';
+import { Home, GitCompare } from 'lucide-react';
 
 function FrameComparison() {
+    const API_BASE = 'http://localhost:8000';
     const [frames, setFrames] = useState([]);
     const [selectedFrame, setSelectedFrame] = useState(null);
     const [ocrData, setOcrData] = useState(null);
     const [detectionData, setDetectionData] = useState(null);
     const [processing, setProcessing] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [showBoxes, setShowBoxes] = useState(true);
+    const originalImgRef = useRef(null);
+    const enhancedImgRef = useRef(null);
+    const [originalDims, setOriginalDims] = useState({ naturalW: 0, naturalH: 0, viewW: 0, viewH: 0 });
+    const [enhancedDims, setEnhancedDims] = useState({ naturalW: 0, naturalH: 0, viewW: 0, viewH: 0 });
 
     useEffect(() => {
         // Fetch all frames (using existing analyze endpoint or a new one)
         // For now, let's use /analyze_blur to get the list
-        fetch('http://localhost:8000/analyze_blur', { method: 'POST' })
-            .then(res => res.json())
+        fetch(`${API_BASE}/analyze_blur`, { method: 'POST' })
+            .then(res => {
+                console.log('Analyze blur response:', res.status);
+                return res.json();
+            })
             .then(data => {
-                setFrames(data.results);
+                console.log('Frames data:', data);
+                setFrames(data.results || []);
                 if (data.results && data.results.length > 0) {
                     const blurred = data.results.find(f => f.state === 'BLURRED');
                     setSelectedFrame(blurred || data.results[0]);
                 }
+                setLoading(false);
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error('Error fetching frames:', err);
+                setLoading(false);
+            });
     }, []);
 
     const handleRunAI = async () => {
@@ -30,12 +47,12 @@ function FrameComparison() {
 
         try {
             // Run OCR
-            const ocrRes = await fetch(`http://localhost:8000/run_ocr?filename=${selectedFrame.filename}`, { method: 'POST' });
+            const ocrRes = await fetch(`${API_BASE}/run_ocr?filename=${selectedFrame.filename}`, { method: 'POST' });
             const ocrJson = await ocrRes.json();
             setOcrData(ocrJson);
 
             // Run Detection
-            const detRes = await fetch(`http://localhost:8000/run_detection?filename=${selectedFrame.filename}`, { method: 'POST' });
+            const detRes = await fetch(`${API_BASE}/run_detection?filename=${selectedFrame.filename}`, { method: 'POST' });
             const detJson = await detRes.json();
             setDetectionData(detJson);
 
@@ -47,17 +64,40 @@ function FrameComparison() {
         }
     };
 
-    if (!selectedFrame || frames.length === 0) return <div className="p-8 text-center">Loading Frames...</div>;
+    if (loading) return <div className="p-8 text-center">Loading Frames...</div>;
+    
+    if (!selectedFrame || frames.length === 0) {
+        return (
+            <div className="max-w-[1600px] mx-auto">
+                <PageHeader
+                    title="Frame Comparison & Verification"
+                    description="Manual review tool for evaluating enhancement models"
+                    breadcrumbs={[
+                        { label: 'Dashboard', path: '/', icon: Home },
+                        { label: 'Frame Analysis' }
+                    ]}
+                />
+                <div className="p-8 text-center text-gray-500">
+                    <p className="text-lg mb-4">No frames available for comparison</p>
+                    <p className="text-sm">Please upload a video first to generate frames for analysis.</p>
+                </div>
+            </div>
+        );
+    }
 
-    const originalUrl = `http://localhost:8000/static/frames/${selectedFrame.filename}`;
-    const enhancedUrl = `http://localhost:8000/static/enhanced/${selectedFrame.filename}`;
+    const originalUrl = `${API_BASE}/static/frames/${selectedFrame.filename}`;
+    const enhancedUrl = `${API_BASE}/static/enhanced/${selectedFrame.filename}`;
 
     return (
         <div className="max-w-[1600px] mx-auto">
-            <header className="mb-6 border-b border-gray-300 pb-4">
-                <h1 className="text-2xl font-bold text-[#16191f]">Frame Comparison & Verification</h1>
-                <p className="text-[#545b64] text-sm mt-1">Manual review tool for evaluating enhancement models.</p>
-            </header>
+            <PageHeader
+                title="Frame Comparison & Verification"
+                description="Manual review tool for evaluating enhancement models"
+                breadcrumbs={[
+                    { label: 'Dashboard', path: '/', icon: Home },
+                    { label: 'Frame Analysis' }
+                ]}
+            />
 
             <div className="bg-white border border-gray-300 shadow-sm mb-6">
                 <div className="bg-[#fafafa] px-5 py-4 border-b border-gray-200 flex flex-wrap items-center gap-4">
@@ -89,6 +129,10 @@ function FrameComparison() {
                     >
                         {processing ? 'Processing on GPU...' : 'Run Analysis'}
                     </button>
+                    <label className="mt-4 ml-2 inline-flex items-center gap-2 text-sm text-slate-600">
+                        <input type="checkbox" checked={showBoxes} onChange={(e) => setShowBoxes(e.target.checked)} />
+                        Show OCR Boxes
+                    </label>
                 </div>
 
                 <div className="p-6">
@@ -100,7 +144,43 @@ function FrameComparison() {
                                 <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold">Standard Definition</span>
                             </h4>
                             <div className="relative border border-gray-300 bg-black aspect-video flex items-center justify-center">
-                                <img src={originalUrl} alt="Original" className="max-w-full max-h-full" />
+                                <img
+                                    ref={originalImgRef}
+                                    src={originalUrl}
+                                    alt="Original"
+                                    className="max-w-full max-h-full"
+                                    onLoad={(e) => {
+                                        const img = e.currentTarget;
+                                        const rect = img.getBoundingClientRect();
+                                        setOriginalDims({ naturalW: img.naturalWidth, naturalH: img.naturalHeight, viewW: rect.width, viewH: rect.height });
+                                    }}
+                                />
+                                {showBoxes && ocrData?.original_ocr && (
+                                    <div className="absolute inset-0 pointer-events-none">
+                                        {ocrData.original_ocr.map((o, idx) => {
+                                            if (!o.bbox) return null;
+                                            const xs = o.bbox.map(p => p[0]);
+                                            const ys = o.bbox.map(p => p[1]);
+                                            const x = Math.min(...xs);
+                                            const y = Math.min(...ys);
+                                            const w = Math.max(...xs) - x;
+                                            const h = Math.max(...ys) - y;
+                                            const sx = originalDims.viewW / (originalDims.naturalW || 1);
+                                            const sy = originalDims.viewH / (originalDims.naturalH || 1);
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    style={{ left: x * sx, top: y * sy, width: w * sx, height: h * sy }}
+                                                    className="absolute border-2 border-yellow-400/80 bg-yellow-400/10"
+                                                >
+                                                    <span className="absolute -top-5 left-0 text-[10px] bg-yellow-400 text-black px-1 py-0.5 font-bold">
+                                                        {o.text} ({Math.round((o.confidence || 0) * 100)}%)
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="mt-4 bg-white border border-gray-300 p-4 shadow-sm">
@@ -126,7 +206,44 @@ function FrameComparison() {
                                 <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded font-bold">ResNet + Sharpening</span>
                             </h4>
                             <div className="relative border border-gray-300 bg-black aspect-video flex items-center justify-center">
-                                <img src={enhancedUrl} alt="Enhanced" className="max-w-full max-h-full" />
+                                <img
+                                    ref={enhancedImgRef}
+                                    src={enhancedUrl}
+                                    alt="Enhanced"
+                                    className="max-w-full max-h-full"
+                                    onError={(e) => { e.currentTarget.src = originalUrl; }}
+                                    onLoad={(e) => {
+                                        const img = e.currentTarget;
+                                        const rect = img.getBoundingClientRect();
+                                        setEnhancedDims({ naturalW: img.naturalWidth, naturalH: img.naturalHeight, viewW: rect.width, viewH: rect.height });
+                                    }}
+                                />
+                                {showBoxes && ocrData?.enhanced_ocr && (
+                                    <div className="absolute inset-0 pointer-events-none">
+                                        {ocrData.enhanced_ocr.map((o, idx) => {
+                                            if (!o.bbox) return null;
+                                            const xs = o.bbox.map(p => p[0]);
+                                            const ys = o.bbox.map(p => p[1]);
+                                            const x = Math.min(...xs);
+                                            const y = Math.min(...ys);
+                                            const w = Math.max(...xs) - x;
+                                            const h = Math.max(...ys) - y;
+                                            const sx = enhancedDims.viewW / (enhancedDims.naturalW || 1);
+                                            const sy = enhancedDims.viewH / (enhancedDims.naturalH || 1);
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    style={{ left: x * sx, top: y * sy, width: w * sx, height: h * sy }}
+                                                    className="absolute border-2 border-emerald-400/80 bg-emerald-400/10"
+                                                >
+                                                    <span className="absolute -top-5 left-0 text-[10px] bg-emerald-400 text-black px-1 py-0.5 font-bold">
+                                                        {o.text} ({Math.round((o.confidence || 0) * 100)}%)
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="mt-4 bg-white border border-green-500 p-4 shadow-sm relative overflow-hidden">

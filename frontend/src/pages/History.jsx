@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Clock, Download, ChevronRight, HardDrive, Calendar, Database } from 'lucide-react';
+import { Clock, Download, ChevronRight, HardDrive, Calendar, Database, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import PageHeader from '../components/PageHeader';
 
 const HistoryPage = () => {
     const [history, setHistory] = useState([]);
@@ -22,14 +23,14 @@ const HistoryPage = () => {
 
     return (
         <div className="max-w-[1600px] mx-auto animate-fade-in">
-            {/* SaaS Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-extrabold text-[#1a202c] tracking-tight">Archives & History</h1>
-                <p className="text-[#64748b] text-base mt-2 flex items-center gap-2">
-                    <Database size={16} />
-                    Permanent record of all inspection batches and enhancement sessions.
-                </p>
-            </div>
+            <PageHeader
+                title="Archives & History"
+                description="Permanent record of all inspection batches and enhancement sessions"
+                breadcrumbs={[
+                    { label: 'Dashboard', path: '/', icon: Home },
+                    { label: 'History' }
+                ]}
+            />
 
             {loading ? (
                 <div className="flex items-center justify-center py-20">
