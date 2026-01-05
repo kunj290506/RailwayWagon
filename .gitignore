@@ -124,6 +124,12 @@ test/Zero-DCE/Zero-DCE_code/data/test_data/*
 # *.tflite
 # *.weights
 
+# Deblur training checkpoints (exclude from git except best model)
+tools/deblur_train/checkpoints/*
+!tools/deblur_train/checkpoints/best_model.pth
+tools/deblur_train/samples/
+tools/deblur_train/runs/
+
 # =========================
 # Logs & Temp Files
 # =========================
