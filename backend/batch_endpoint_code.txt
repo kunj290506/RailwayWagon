@@ -1,0 +1,46 @@
+
+# BATCH PROCESSING ENDPOINT
+@app.post("/batch_process")
+async def batch_process_images(files: List[UploadFile] = File(...)):
+    try:
+        batch_input_dir = "data/batch_input"
+        batch_enhanced_dir = "data/batch_enhanced"
+        
+        for dir_path in [batch_input_dir, batch_enhanced_dir]:
+            if os.path.exists(dir_path):
+                for file in os.listdir(dir_path):
+                    os.remove(os.path.join(dir_path, file))
+        
+        print(f"Batch processing {len(files)} images...")
+        results = []
+        
+        for idx, file in enumerate(files):
+            try:
+                input_path = os.path.join(batch_input_dir, file.filename)
+                with open(input_path, "wb") as buffer:
+                    shutil.copyfileobj(file.file, buffer)
+                
+                enhanced_filename = f"enhanced_{file.filename}"
+                enhanced_path = os.path.join(batch_enhanced_dir, enhanced_filename)
+                
+                from app.enhancement_service import enhance_image
+                enhance_image(input_path, enhanced_path)
+                
+                ocr_results = run_ocr_general(enhanced_path)
+                
+                results.append({
+                    "filename": file.filename,
+                    "enhanced_filename": enhanced_filename,
+                    "ocr_text": [{"text": r.text, "confidence": r.confidence} for r in ocr_results[:10]],
+                    "status": "success"
+                })
+                
+                print(f"  Processed {idx+1}/{len(files)}: {file.filename}")
+                
+            except Exception as e:
+                print(f"  Error {file.filename}: {e}")
+                results.append({"filename": file.filename, "status": "error", "error": str(e)})
+        
+        return {"processed": len(files), "results": results}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -5,3 +5,5 @@ opencv-python
 ultralytics
 kornia
 easyocr
+paddleocr
+paddlepaddle-gpu

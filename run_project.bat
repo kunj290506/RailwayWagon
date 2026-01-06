@@ -34,7 +34,7 @@ if not exist "data\sample_video.mp4" (
 :: 4. Start Servers
 echo.
 echo [INFO] Starting Backend Server...
-start "Backend API" cmd /k "%PY_CMD% -m uvicorn backend.app:app --reload --host 0.0.0.0 --port 8000"
+start "Backend API" cmd /k "%PY_CMD% -m uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000"
 
 echo [INFO] Starting Frontend Server...
 cd frontend

@@ -1,0 +1,135 @@
+/* Batch Process Page Styles */
+
+.batch-process-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.upload-card {
+    padding: 3rem;
+}
+
+.upload-zone {
+    text-align: center;
+    padding: 3rem 2rem;
+    border: 2px dashed var(--border-medium);
+    border-radius: var(--radius-lg);
+    background: var(--gray-50);
+    transition: all 0.2s;
+}
+
+.upload-zone:hover {
+    border-color: var(--primary);
+    background: rgba(37, 99, 235, 0.02);
+}
+
+.upload-icon {
+    color: var(--text-tertiary);
+    margin: 0 auto;
+}
+
+.file-list {
+    border-top: 1px solid var(--border-light);
+    padding-top: 1.5rem;
+}
+
+.files-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+}
+
+.file-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.processing-section {
+    max-width: 500px;
+    margin: 4rem auto;
+}
+
+.results-section {
+    animation: fadeIn 0.3s ease;
+}
+
+.result-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.image-preview {
+    width: 100%;
+    aspect-ratio: 16/10;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--gray-100);
+}
+
+.preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ocr-results {
+    background: var(--gray-50);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+}
+
+.ocr-text-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ocr-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+}
+
+.ocr-content {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.text-success {
+    color: var(--success);
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}

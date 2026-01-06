@@ -1,148 +1,268 @@
-import easyocr
 import cv2
-import logging
 import numpy as np
+import logging
 import re
 import threading
 from typing import List
 from app.models import OCRResult
 
-# Initialize EasyOCR
-# We trust EasyOCR more on this windows env than Paddle given the install issues.
-try:
-    reader = easyocr.Reader(['en'], gpu=True)
-    print("✅ EasyOCR Initialized (GPU)")
-except Exception as e:
-    print(f"⚠️ EasyOCR GPU Init Failed: {e}. Falling back to CPU.")
-    reader = easyocr.Reader(['en'], gpu=False)
-
+# Try PaddleOCR first (better for Asian/numeric text), fallback to EasyOCR
+ocr_engine = None
 ocr_lock = threading.Lock()
 
-def preprocess_for_ocr(image):
+try:
+    from paddleocr import PaddleOCR
+    ocr_engine = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=True, show_log=False)
+    print("✅ PaddleOCR Initialized (GPU) - Superior number detection")
+except Exception as e:
+    print(f"⚠️ PaddleOCR unavailable: {e}. Using EasyOCR...")
+    try:
+        import easyocr
+        ocr_engine = easyocr.Reader(['en'], gpu=True)
+        print("✅ EasyOCR Initialized (GPU)")
+    except Exception as e2:
+        print(f"❌ Both OCR engines failed: {e2}")
+        import easyocr
+        ocr_engine = easyocr.Reader(['en'], gpu=False)
+        print("⚠️ EasyOCR CPU Mode")
+
+def advanced_preprocess(image):
     """
-    Standard preprocessing for EasyOCR.
-    Returns processed image and scale factors to map back to original.
+    Enhanced preprocessing for better wagon number detection
     """
+    # Convert to grayscale
     if len(image.shape) == 3:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     else:
-        gray = image
-
-    # Resize up if small
-    h, w = gray.shape
-    fx = fy = 1.0
-    if h < 1000:
-        fx = fy = 2.0
-        gray = cv2.resize(gray, None, fx=fx, fy=fy, interpolation=cv2.INTER_CUBIC)
-
-    # Contrast
-    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
-    enhanced = clahe.apply(gray)
+        gray = image.copy()
     
-    return enhanced, fx, fy
+    # Resize for better OCR (larger = better detection)
+    h, w = gray.shape
+    if h < 1200:
+        scale = 2.0  # Increased from 2.5
+        gray = cv2.resize(gray, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+    
+    # Denoise
+    denoised = cv2.fastNlMeansDenoising(gray, None, 10, 7, 21)
+    
+    # Enhance contrast with CLAHE
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    enhanced = clahe.apply(denoised)
+    
+    # Sharpen
+    kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+    sharpened = cv2.filter2D(enhanced, -1, kernel)
+    
+    # Adaptive thresholding
+    binary = cv2.adaptiveThreshold(
+        sharpened, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+        cv2.THRESH_BINARY, 11, 2
+    )
+    
+    # Morphological operations
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+    morph = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+    
+    return morph
 
 def run_ocr(image_path: str) -> List[OCRResult]:
     """
-    Runs EasyOCR on the image.
-    Returns list of detected texts and confidences.
+    Enhanced OCR with PaddleOCR/EasyOCR
     """
     try:
-        # Load Image
         img = cv2.imread(image_path)
         if img is None:
             return []
-
-        # Preprocess
-        processed_img, fx, fy = preprocess_for_ocr(img)
+        
+        # Try multiple preprocessing strategies
+        results = []
+        
+        # Strategy 1: Advanced preprocessing
+        processed = advanced_preprocess(img)
         
         with ocr_lock:
-             # EasyOCR readtext
-             # allowlist='0123456789' forces digit-only mode
-             results = reader.readtext(
-                 processed_img, 
-                 detail=1,
-                 allowlist='0123456789', # Strict digit mode helps accuracy
-                 paragraph=False,
-                 min_size=10,
-                 text_threshold=0.5,
-                 low_text=0.3
-             )
-    except Exception as e:
-        print(f"OCR Error: {e}")
-        return []
-    
-    output = []
-    # Result format: ([[x,y]...], text, confidence)
-    for (bbox, text, prob) in results:
-        # Lower threshold to 0.2 to catch faint numbers
-        if prob > 0.2:
-            # Map bbox back to original image coords (reverse of fx, fy)
-            mapped = [[float(x)/fx, float(y)/fy] for (x, y) in bbox]
-            output.append(OCRResult(
-                text=text,
-                confidence=round(prob, 2),
-                bbox=mapped
-            ))
+            if 'PaddleOCR' in str(type(ocr_engine)):
+                # PaddleOCR
+                ocr_results = ocr_engine.ocr(processed, cls=True)
+                
+                if ocr_results and ocr_results[0]:
+                    for line in ocr_results[0]:
+                        if line:
+                            bbox, (text, confidence) = line
+                            # Only digits
+                            clean_text = ''.join(filter(str.isdigit, text))
+                            if len(clean_text) >= 4 and confidence > 0.3:
+                                results.append(OCRResult(
+                                    text=clean_text,
+                                    confidence=round(confidence, 2),
+                                    bbox=bbox
+                                ))
+            else:
+                # EasyOCR
+                ocr_results = ocr_engine.readtext(
+                    processed,
+                    detail=1,
+                    allowlist='0123456789',
+                    paragraph=False,
+                    min_size=10,
+                    text_threshold=0.4,
+                    low_text=0.2
+                )
+                
+                for (bbox, text, prob) in ocr_results:
+                    if prob > 0.3:
+                        clean_text = ''.join(filter(str.isdigit, text))
+                        if len(clean_text) >= 4:
+                            results.append(OCRResult(
+                                text=clean_text,
+                                confidence=round(prob, 2),
+                                bbox=bbox
+                            ))
         
-    return output
+        # Strategy 2: Original image (sometimes works better)
+        if len(results) < 2:
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            with ocr_lock:
+                if 'PaddleOCR' in str(type(ocr_engine)):
+                    extra_results = ocr_engine.ocr(gray, cls=True)
+                    if extra_results and extra_results[0]:
+                        for line in extra_results[0]:
+                            if line:
+                                bbox, (text, confidence) = line
+                                clean_text = ''.join(filter(str.isdigit, text))
+                                if len(clean_text) >= 4 and confidence > 0.3:
+                                    # Check not duplicate
+                                    if not any(r.text == clean_text for r in results):
+                                        results.append(OCRResult(
+                                            text=clean_text,
+                                            confidence=round(confidence, 2),
+                                            bbox=bbox
+                                        ))
+        
+        return results
+        
+    except Exception as e:
+        print(f"OCR Error on {image_path}: {e}")
+        return []
 
 def extract_valid_wagon_numbers(ocr_results: List[OCRResult]) -> List[dict]:
     """
-    Filters OCR results for valid Wagon Numbers.
-    Uses RELAXED Match Logic (8-15 digits).
+    Improved wagon number extraction with better validation
+    Supports both numeric-only and alphanumeric patterns
     """
     valid_data = []
     
-    # 1. Individual Blocks
+    # Collect all detected text
+    all_texts = [res.text for res in ocr_results]
+    
+    # Strategy 1: Look for 10-12 digit sequences (numeric wagon numbers)
     for res in ocr_results:
-        clean_text = "".join(filter(str.isdigit, res.text))
+        clean = res.text.strip()
         
-        # Check if individual block looks like a number
-        # 11 digits is ideal.
-        if len(clean_text) >= 10 and len(clean_text) <= 12:
-             valid_data.append({
-                "number": clean_text,
+        # Pure numeric 10-12 digits
+        if clean.isdigit() and 10 <= len(clean) <= 12:
+            valid_data.append({
+                "number": clean,
                 "confidence": res.confidence
             })
-
-    # 2. Concatenated Frame Text (Fallback)
-    full_text = " ".join([res.text for res in ocr_results])
-    full_digits = "".join(filter(str.isdigit, full_text))
     
-    # EXTREMELY RELAXED: Find 8 to 15 digits
-    matches_full = re.finditer(r'\d{8,15}', full_digits)
+    # Strategy 2: Look for alphanumeric patterns (letters + numbers)
+    # Pattern: 2-4 letters followed by 7-9 digits
+    import re
+    for text in all_texts:
+        # Match patterns like ABC1234567 or XY12345678
+        matches = re.findall(r'[A-Z]{2,4}\s?-?\s?\d{7,9}', text.upper())
+        for match in matches:
+            clean = re.sub(r'[\s-]', '', match)  # Remove spaces and dashes
+            if clean not in [d['number'] for d in valid_data]:
+                valid_data.append({
+                    "number": clean,
+                    "confidence": 0.75
+                })
     
-    for m in matches_full:
-        num = m.group()
+    # Strategy 3: Concatenate nearby results to find split numbers
+    concat_text = ''.join([res.text for res in ocr_results])
+    
+    # Find 10-14 digit sequences in concatenated text
+    for match in re.finditer(r'\d{10,14}', concat_text):
+        num = match.group()
         
-        # Skip if already found exact match
+        # Skip if already found
         if any(d['number'] == num for d in valid_data):
             continue
-            
+        
+        # Prefer 11-digit (standard wagon number)
         if len(num) == 11:
             valid_data.append({
                 "number": num,
-                "confidence": 0.85
+                "confidence": 0.70
             })
-            print(f"[DEBUG OCR] Exact 11-Digit: {num}")
-        else:
-            # Partial
-            valid_data.append({
-                "number": num + " (?)", 
-                "confidence": 0.45
-            })
-            print(f"[DEBUG OCR] Partial/Potential: {num}")
-
-    # Deduplicate
+    
+    # Deduplicate and sort by confidence
     unique_map = {}
     for item in valid_data:
         num = item['number']
-        # If duplicated, keep the one without (?) or higher confidence
-        if num not in unique_map:
+        if num not in unique_map or item['confidence'] > unique_map[num]['confidence']:
             unique_map[num] = item
-        else:
-             if '?' not in num and '?' in unique_map[num]['number']:
-                 unique_map[num] = item
-            
-    return list(unique_map.values())
+    
+    sorted_results = sorted(unique_map.values(), key=lambda x: x['confidence'], reverse=True)
+    
+    return sorted_results
 
+
+def run_ocr_general(image_path: str) -> List[OCRResult]:
+    """
+    Run OCR without filters - extract ANY text from image
+    For general document/image text extraction (not just wagon numbers)
+    """
+    try:
+        img = cv2.imread(image_path)
+        if img is None:
+            return []
+        
+        # Use same advanced preprocessing
+        processed = advanced_preprocess(img)
+        
+        results = []
+        
+        with ocr_lock:
+            if 'PaddleOCR' in str(type(ocr_engine)):
+                # PaddleOCR - no character restrictions
+                ocr_results = ocr_engine.ocr(processed, cls=True)
+                
+                if ocr_results and ocr_results[0]:
+                    for line in ocr_results[0]:
+                        if line:
+                            bbox, (text, confidence) = line
+                            if confidence > 0.4 and text.strip():
+                                results.append(OCRResult(
+                                    text=text.strip(),
+                                    confidence=round(confidence, 2),
+                                    bbox=bbox
+                                ))
+            else:
+                # EasyOCR - no character restrictions
+                ocr_results = ocr_engine.readtext(
+                    processed,
+                    detail=1,
+                    paragraph=False,
+                    min_size=10,
+                    text_threshold=0.5
+                )
+                
+                for (bbox, text, prob) in ocr_results:
+                    if prob > 0.4 and text.strip():
+                        results.append(OCRResult(
+                            text=text.strip(),
+                            confidence=round(prob, 2),
+                            bbox=bbox
+                        ))
+        
+        # Sort by confidence
+        results.sort(key=lambda x: x.confidence, reverse=True)
+        
+        return results
+        
+    except Exception as e:
+        print(f"General OCR Error on {image_path}: {e}")
+        return []
