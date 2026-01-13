@@ -40,11 +40,11 @@ async def batch_process_images(files: List[UploadFile] = File(...)):
                 enhanced_filename = f"enhanced_{file.filename}"
                 enhanced_path = os.path.join(batch_enhanced_dir, enhanced_filename)
                 
-                from app.enhancement_service import enhance_image
+                from backend.app.enhancement_service import enhance_image
                 enhance_image(input_path, enhanced_path)
                 
                 # Run OCR on enhanced image (general text extraction)
-                from app.ocr_service import run_ocr_general
+                from backend.app.ocr_service import run_ocr_general
                 ocr_results = run_ocr_general(enhanced_path)
                 
                 results.append({

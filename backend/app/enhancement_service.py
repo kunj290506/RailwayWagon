@@ -5,7 +5,7 @@ import shutil
 import time
 import concurrent.futures
 from typing import List
-from app.models import FrameAnalysis
+from backend.app.models import FrameAnalysis
 
 # Try Importing GPU Libraries
 try:
@@ -48,7 +48,7 @@ def enhance_image(image_path: str, output_path: str, fast_mode=True):
             return
         
         # Standard NAFNet mode (slow but high quality)
-        from app.nafnet_service import get_nafnet_model
+        from backend.app.nafnet_service import get_nafnet_model
         nafnet = get_nafnet_model()
         enhanced_img = nafnet.deblur_image(img)
         cv2.imwrite(output_path, enhanced_img)

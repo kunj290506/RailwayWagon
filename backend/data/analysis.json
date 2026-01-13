@@ -1,0 +1,502 @@
+[
+    {
+        "filename": "frame_0096.jpg",
+        "blur_score": 113.46,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0095.jpg",
+        "blur_score": 117.28,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0094.jpg",
+        "blur_score": 118.81,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0082.jpg",
+        "blur_score": 121.08,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0063.jpg",
+        "blur_score": 123.8,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0050.jpg",
+        "blur_score": 124.14,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0069.jpg",
+        "blur_score": 125.59,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0088.jpg",
+        "blur_score": 127.39,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0049.jpg",
+        "blur_score": 130.45,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0097.jpg",
+        "blur_score": 130.49,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0076.jpg",
+        "blur_score": 131.07,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0075.jpg",
+        "blur_score": 131.65,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0081.jpg",
+        "blur_score": 133.05,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0093.jpg",
+        "blur_score": 134.07,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0090.jpg",
+        "blur_score": 134.64,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0083.jpg",
+        "blur_score": 135.15,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0064.jpg",
+        "blur_score": 135.5,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0062.jpg",
+        "blur_score": 135.79,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0089.jpg",
+        "blur_score": 136.88,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0030.jpg",
+        "blur_score": 137.86,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0051.jpg",
+        "blur_score": 137.89,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0070.jpg",
+        "blur_score": 138.14,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0056.jpg",
+        "blur_score": 138.83,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0043.jpg",
+        "blur_score": 138.85,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0071.jpg",
+        "blur_score": 139.53,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0091.jpg",
+        "blur_score": 139.75,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0077.jpg",
+        "blur_score": 140.28,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0024.jpg",
+        "blur_score": 141.64,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0087.jpg",
+        "blur_score": 142.0,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0092.jpg",
+        "blur_score": 142.78,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0036.jpg",
+        "blur_score": 143.93,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0074.jpg",
+        "blur_score": 145.77,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0099.jpg",
+        "blur_score": 146.14,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0029.jpg",
+        "blur_score": 146.16,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0026.jpg",
+        "blur_score": 146.81,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0058.jpg",
+        "blur_score": 147.01,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0078.jpg",
+        "blur_score": 147.03,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0004.jpg",
+        "blur_score": 147.18,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0037.jpg",
+        "blur_score": 147.69,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0017.jpg",
+        "blur_score": 148.24,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0073.jpg",
+        "blur_score": 148.38,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0059.jpg",
+        "blur_score": 148.48,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0084.jpg",
+        "blur_score": 148.53,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0023.jpg",
+        "blur_score": 148.66,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0065.jpg",
+        "blur_score": 148.69,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0068.jpg",
+        "blur_score": 149.51,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0057.jpg",
+        "blur_score": 149.58,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0018.jpg",
+        "blur_score": 151.2,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0061.jpg",
+        "blur_score": 151.81,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0011.jpg",
+        "blur_score": 152.22,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0005.jpg",
+        "blur_score": 153.65,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0052.jpg",
+        "blur_score": 155.65,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0045.jpg",
+        "blur_score": 156.04,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0010.jpg",
+        "blur_score": 156.97,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0019.jpg",
+        "blur_score": 157.51,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0072.jpg",
+        "blur_score": 157.53,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0098.jpg",
+        "blur_score": 157.53,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0016.jpg",
+        "blur_score": 157.98,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0048.jpg",
+        "blur_score": 160.02,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0080.jpg",
+        "blur_score": 160.27,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0013.jpg",
+        "blur_score": 160.37,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0028.jpg",
+        "blur_score": 160.62,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0086.jpg",
+        "blur_score": 160.85,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0035.jpg",
+        "blur_score": 160.9,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0079.jpg",
+        "blur_score": 162.02,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0003.jpg",
+        "blur_score": 163.77,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0046.jpg",
+        "blur_score": 163.88,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0055.jpg",
+        "blur_score": 164.46,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0044.jpg",
+        "blur_score": 164.87,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0042.jpg",
+        "blur_score": 165.26,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0060.jpg",
+        "blur_score": 165.57,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0067.jpg",
+        "blur_score": 166.31,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0031.jpg",
+        "blur_score": 167.02,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0022.jpg",
+        "blur_score": 167.47,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0053.jpg",
+        "blur_score": 167.8,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0027.jpg",
+        "blur_score": 168.02,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0034.jpg",
+        "blur_score": 168.33,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0032.jpg",
+        "blur_score": 168.5,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0033.jpg",
+        "blur_score": 169.38,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0025.jpg",
+        "blur_score": 169.64,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0085.jpg",
+        "blur_score": 170.73,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0001.jpg",
+        "blur_score": 172.08,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0039.jpg",
+        "blur_score": 172.49,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0014.jpg",
+        "blur_score": 173.29,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0021.jpg",
+        "blur_score": 173.48,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0038.jpg",
+        "blur_score": 173.89,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0012.jpg",
+        "blur_score": 174.09,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0015.jpg",
+        "blur_score": 174.68,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0000.jpg",
+        "blur_score": 175.32,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0047.jpg",
+        "blur_score": 176.02,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0066.jpg",
+        "blur_score": 176.29,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0020.jpg",
+        "blur_score": 177.06,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0006.jpg",
+        "blur_score": 179.53,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0054.jpg",
+        "blur_score": 179.92,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0041.jpg",
+        "blur_score": 182.07,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0008.jpg",
+        "blur_score": 183.53,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0009.jpg",
+        "blur_score": 185.95,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0002.jpg",
+        "blur_score": 186.28,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0040.jpg",
+        "blur_score": 189.46,
+        "state": "SHARP"
+    },
+    {
+        "filename": "frame_0007.jpg",
+        "blur_score": 194.79,
+        "state": "SHARP"
+    }
+]

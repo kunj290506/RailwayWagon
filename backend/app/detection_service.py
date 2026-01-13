@@ -1,6 +1,6 @@
 from ultralytics import YOLO
 from typing import List
-from app.models import DetectionResult
+from backend.app.models import DetectionResult
 
 # Load a pretrained model (e.g., yolov8n.pt)
 # Load a pretrained model
@@ -9,7 +9,7 @@ from app.models import DetectionResult
 # Load a pretrained model (e.g., yolov8x.pt - Extra Large for Best Accuracy)
 # It will download on first use (approx 130MB+)
 # Ultralytics will auto-select GPU if available.
-model = YOLO("yolov8x.pt")
+model = YOLO("backend/yolov8n.pt")
 import torch
 if torch.cuda.is_available():
     model.to('cuda')

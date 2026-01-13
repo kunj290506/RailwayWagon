@@ -10,7 +10,7 @@ import torchvision.transforms as transforms
 import os
 
 # Import exact model architecture from training
-from app.deblur_models import GeneratorResNet
+from backend.app.deblur_models import GeneratorResNet
 
 
 

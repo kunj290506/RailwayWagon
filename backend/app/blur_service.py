@@ -4,7 +4,7 @@ import glob
 import json
 import numpy as np
 from typing import List
-from app.models import FrameAnalysis
+from backend.app.models import FrameAnalysis
 
 def calculate_blur_score(image_path: str) -> float:
     """

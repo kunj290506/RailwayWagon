@@ -7,12 +7,12 @@ import shutil
 import os
 import json
 import zipfile
-from app.video_service import process_video
-from app.blur_service import analyze_frames
-from app.enhancement_service import enhance_frames
-from app.ocr_service import run_ocr, run_ocr_general
-from app.detection_service import run_detection
-from app.models import BlurResponse, AIComparisonResponse
+from backend.app.video_service import process_video
+from backend.app.blur_service import analyze_frames
+from backend.app.enhancement_service import enhance_frames
+from backend.app.ocr_service import run_ocr, run_ocr_general
+from backend.app.detection_service import run_detection
+from backend.app.models import BlurResponse, AIComparisonResponse
 
 app = FastAPI()
         
@@ -182,7 +182,7 @@ def enhance_frames_endpoint():
         update_status("Enhancement", "Reassembling Video...", 95)
         server_status["eta"] = "~10s"
         
-        from app.video_service import create_video_from_frames
+        from backend.app.video_service import create_video_from_frames
         # We assume 30 FPS for the output primarily
         create_video_from_frames(enhanced_dir, "data/enhanced_video.mp4", fps=30.0)
         
@@ -251,7 +251,7 @@ def run_detection_endpoint(filename: str):
 
 @app.get("/analytics/top_blur")
 def get_top_blur(limit: int = 10):
-    from app.blur_service import get_cached_results
+    from backend.app.blur_service import get_cached_results
     results = get_cached_results()
     return results[:limit]
 
@@ -295,7 +295,7 @@ def scan_wagons():
     Runs OCR on all ENHANCED frames to find unique 11-digit wagon numbers.
     ARCHIVES results for history.
     """
-    from app.ocr_service import run_ocr, extract_valid_wagon_numbers
+    from backend.app.ocr_service import run_ocr, extract_valid_wagon_numbers
     from datetime import datetime
     
     update_status("Scanning", "Initializing Wagon Scanner...", 0)
@@ -308,8 +308,8 @@ def scan_wagons():
         return {"wagons": []}
     
     frames = sorted(os.listdir(enhanced_dir))
-    # BALANCED MODE: Scan every 5th frame for better detection
-    frames_to_scan = frames[::5]
+    # OPTIMIZED MODE: Scan every 15th frame to prevent timeout (7 frames from 100)
+    frames_to_scan = frames[::15]
     total_scan = len(frames_to_scan)
     
     found_wagons = {} # number -> first_seen_frame
@@ -380,7 +380,7 @@ def scan_wagons():
 
     # GENERATE MASTER METADATA
     master_meta = []
-    from app.blur_service import get_cached_results
+    from backend.app.blur_service import get_cached_results
     blur_data = get_cached_results()
     blur_data.sort(key=lambda x: x.filename)
     
@@ -540,64 +540,49 @@ def get_history_metadata(batch_id: str):
 
 @app.post("/batch_process")
 async def batch_process_images(files: List[UploadFile] = File(...)):
-    """
-    Batch process multiple images:
-    1. Deblur each image using AI model
-    2. Run general OCR to extract ANY text
-    3. Return enhanced images and OCR results
-    """
+    """Batch process images with deblurring and OCR"""
     try:
+        print(f"Received {len(files) if files else 0} files for batch processing")
+        
         batch_input_dir = "data/batch_input"
         batch_enhanced_dir = "data/batch_enhanced"
-       
-        # Clear previous batch
+        
         for dir_path in [batch_input_dir, batch_enhanced_dir]:
             if os.path.exists(dir_path):
                 for file in os.listdir(dir_path):
                     os.remove(os.path.join(dir_path, file))
         
         print(f"📁 Batch processing {len(files)} images...")
-        
         results = []
         
         for idx, file in enumerate(files):
             try:
-                # Save input file
                 input_path = os.path.join(batch_input_dir, file.filename)
                 with open(input_path, "wb") as buffer:
                     shutil.copyfileobj(file.file, buffer)
                 
-                # Deblur the image
                 enhanced_filename = f"enhanced_{file.filename}"
                 enhanced_path = os.path.join(batch_enhanced_dir, enhanced_filename)
                 
+                from backend.app.enhancement_service import enhance_image
                 enhance_image(input_path, enhanced_path)
                 
-                # Run general OCR (any text, not just numbers)
                 ocr_results = run_ocr_general(enhanced_path)
                 
                 results.append({
                     "filename": file.filename,
                     "enhanced_filename": enhanced_filename,
-                    "ocr_text": [{"text": r.text, "confidence": r.confidence} for r in ocr_results[:10]],  # Top 10 results
+                    "ocr_text": [{"text": r.text, "confidence": r.confidence} for r in ocr_results[:10]],
                     "status": "success"
                 })
                 
-                print(f"  ✓ Processed {idx+1}/{len(files)}: {file.filename} ({len(ocr_results)} text items found)")
+                print(f"  ✓ Processed {idx+1}/{len(files)}: {file.filename}")
                 
             except Exception as e:
-                print(f"  ✗ Error processing {file.filename}: {e}")
-                results.append({
-                    "filename": file.filename,
-                    "status": "error",
-                    "error": str(e)
-                })
+                print(f"  ✗ Error {file.filename}: {e}")
+                results.append({"filename": file.filename, "status": "error", "error": str(e)})
         
-        return {
-            "processed": len(files),
-            "results": results
-        }
-        
+        return {"processed": len(files), "results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -618,95 +603,5 @@ async def download_batch_results():
             media_type='application/zip',
             filename='enhanced_images.zip'
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/batch_process")
-async def batch_process_images(files: List[UploadFile] = File(...)):
-    """Batch process images with deblurring and OCR"""
-    try:
-        print(f"Received {len(files) if files else 0} files for batch processing")
-        
-        batch_input_dir = "data/batch_input"
-        batch_enhanced_dir = "data/batch_enhanced"
-        
-        for dir_path in [batch_input_dir, batch_enhanced_dir]:
-            if os.path.exists(dir_path):
-                for file in os.listdir(dir_path):
-                    os.remove(os.path.join(dir_path, file))
-        
-        print(f"Batch processing {len(files)} images...")
-        results = []
-        
-        for idx, file in enumerate(files):
-            try:
-                input_path = os.path.join(batch_input_dir, file.filename)
-                with open(input_path, "wb") as buffer:
-                    shutil.copyfileobj(file.file, buffer)
-                
-                enhanced_filename = f"enhanced_{file.filename}"
-                enhanced_path = os.path.join(batch_enhanced_dir, enhanced_filename)
-                
-                from app.enhancement_service import enhance_image
-                enhance_image(input_path, enhanced_path)
-                
-                ocr_results = run_ocr_general(enhanced_path)
-                
-                results.append({
-                    "filename": file.filename,
-                    "enhanced_filename": enhanced_filename,
-                    "ocr_text": [{"text": r.text, "confidence": r.confidence} for r in ocr_results[:10]],
-                    "status": "success"
-                })
-                
-                print(f"  Processed {idx+1}/{len(files)}: {file.filename}")
-                
-            except Exception as e:
-                print(f"  Error {file.filename}: {e}")
-                results.append({"filename": file.filename, "status": "error", "error": str(e)})
-# BATCH PROCESSING ENDPOINT
-@app.post("/batch_process")
-async def batch_process_images(files: List[UploadFile] = File(...)):
-    try:
-        batch_input_dir = "data/batch_input"
-        batch_enhanced_dir = "data/batch_enhanced"
-        
-        for dir_path in [batch_input_dir, batch_enhanced_dir]:
-            if os.path.exists(dir_path):
-                for file in os.listdir(dir_path):
-                    os.remove(os.path.join(dir_path, file))
-        
-        print(f"Batch processing {len(files)} images...")
-        results = []
-        
-        for idx, file in enumerate(files):
-            try:
-                input_path = os.path.join(batch_input_dir, file.filename)
-                with open(input_path, "wb") as buffer:
-                    shutil.copyfileobj(file.file, buffer)
-                
-                enhanced_filename = f"enhanced_{file.filename}"
-                enhanced_path = os.path.join(batch_enhanced_dir, enhanced_filename)
-                
-                from app.enhancement_service import enhance_image
-                enhance_image(input_path, enhanced_path)
-                
-                ocr_results = run_ocr_general(enhanced_path)
-                
-                results.append({
-                    "filename": file.filename,
-                    "enhanced_filename": enhanced_filename,
-                    "ocr_text": [{"text": r.text, "confidence": r.confidence} for r in ocr_results[:10]],
-                    "status": "success"
-                })
-                
-                print(f"  Processed {idx+1}/{len(files)}: {file.filename}")
-                
-            except Exception as e:
-                print(f"  Error {file.filename}: {e}")
-                results.append({"filename": file.filename, "status": "error", "error": str(e)})
-        
-        return {"processed": len(files), "results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

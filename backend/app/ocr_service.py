@@ -4,7 +4,7 @@ import logging
 import re
 import threading
 from typing import List
-from app.models import OCRResult
+from backend.app.models import OCRResult
 
 # Try PaddleOCR first (better for Asian/numeric text), fallback to EasyOCR
 ocr_engine = None
